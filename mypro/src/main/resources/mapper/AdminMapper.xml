@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+    namespace:名称空间
+    入门链接cv过来
+-->
+<mapper namespace="mapper.AdminMapper">
+    <insert id="add_room">
+        insert into room values (#{id},#{type},#{price},'空',null,null);
+    </insert>
+
+
+    <update id="update_room">
+        update room set status='空' where id=#{rid};
+        update living set leave_true=#{leave_true} where gno=#{no};
+        update living set pay=#{pay} where gno=#{no};
+        update guest set status='已离开' where no=#{no};
+
+    </update>
+    <update id="update_room_inf">
+        update room set type=#{type} where id=#{rid};
+        update room set price=#{price} where id=#{rid};
+    </update>
+    <update id="update_guest">
+        update guest set name=#{name} where guest.no=#{no};
+        update guest set gender=#{gender} where guest.no=#{no};
+        update guest set id=#{id} where guest.no=#{no};
+        update guest set contact=#{contact} where guest.no=#{no};
+        update living set leave_expected=#{leave_expected} where living.gno=#{no};
+        update living set pay=#{pay} where living.gno=#{no};
+    </update>
+    <update id="check_out">
+        update living set leave_true=#{leave_true} where gno=#{no};
+        update guest set status='已离开' where no=#{no};
+        update room set bookphonenum=null where id=#{rid};
+        update room set status='空' where id=#{rid};
+        update living set pay=#{pay} where gno=#{no};
+    </update>
+    <delete id="delete_room">
+        delete from room where id=#{id};
+    </delete>
+
+<!--   mybatis会将数组参数，封装为一个Map集合
+        *默认：array=数组   <foreach collection="array" item="id">
+        *使用@Pararm注解改变map集合的默认key的名称-->
+<!--    <delete id="delete_rooms">-->
+<!--        delete from room where id-->
+<!--&lt;!&ndash;        in(&ndash;&gt;-->
+<!--&lt;!&ndash;            <foreach collection="s" item="id" separator=",">&ndash;&gt;-->
+<!--&lt;!&ndash;                #{id}&ndash;&gt;-->
+<!--&lt;!&ndash;            </foreach>&ndash;&gt;-->
+<!--&lt;!&ndash;        );&ndash;&gt;-->
+<!--        in-->
+<!--        <foreach collection="s" item="id" separator="," open="(" close=")">-->
+<!--            #{id}-->
+<!--        </foreach>-->
+<!--        ;-->
+<!--    </delete>-->
+    <delete id="delete_guests">
+        delete from guest where no
+        in
+        <foreach collection="array" item="no" separator="," open="(" close=")">
+            #{no}
+        </foreach>
+        ;
+        delete from living where gno
+        in
+        <foreach collection="array" item="gno" separator="," open="(" close=")">
+            #{gno}
+        </foreach>
+        ;
+    </delete>
+
+<!--    <select id="search_liver" resultType="pojo.liver">-->
+<!--        select * from living where rid=#{rid} and leave_true is Null;-->
+<!--    </select>-->
+    <select id="get_password" resultType="java.lang.String">
+        select password from admin where adminname=#{adminname};
+    </select>
+    <select id="selectAll" resultType="pojo.room">
+        select *from room;
+    </select>
+    <select id="select_single" resultType="pojo.room">
+        select *from room where type like '%单人间';
+    </select>
+    <select id="select_double" resultType="pojo.room">
+        select *from room where type like '%双人间';
+    </select>
+    <select id="select_room_by_id" resultType="pojo.room">
+        select * from room where id=#{id};
+    </select>
+    <select id="selectAll_guests" resultType="pojo.guest">
+       select * from guest,living where guest.no=living.gno;
+    </select>
+    <select id="selectAll_guests_in" resultType="pojo.guest">
+        select * from guest,living where guest.no=living.gno and guest.status='住宿中';
+    </select>
+    <select id="select_guest_no" resultType="pojo.guest">
+        select * from guest,living where guest.no=living.gno and guest.no=#{no};
+    </select>
+    <select id="select_guest_id" resultType="pojo.guest">
+        select * from guest,living where guest.no=living.gno and guest.id=#{id};
+    </select>
+    <select id="select_guest_name" resultType="pojo.guest">
+        select * from guest,living where guest.no=living.gno and guest.name=#{name};
+    </select>
+    <select id="select_guest_rid" resultType="pojo.guest">
+        select * from guest,living where guest.no=living.gno and living.rid=#{rid} order by guest.no desc LIMIT 2;
+    </select>
+    <select id="select_guest_living" resultType="pojo.guest">
+        select *from living where gno=#{gno};
+    </select>
+    <select id="select_guest_rid2" resultType="pojo.guest">
+        select * from guest,living where guest.no=living.gno and living.rid=#{rid} and status='住宿中';
+    </select>
+    <select id="select_ksingle" resultType="pojo.room">
+        select *from room where type like '%单人间' and status='空';
+    </select>
+    <select id="select_kdouble" resultType="pojo.room">
+        select *from room where type like '%双人间' and status='空';
+    </select>
+</mapper>

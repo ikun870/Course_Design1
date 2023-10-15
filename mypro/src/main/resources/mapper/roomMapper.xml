@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+    namespace:名称空间
+    入门链接cv过来
+-->
+<mapper namespace="mapper.roomMapper">
+    <update id="be_booked">
+        update room set status='预定中' where id=#{rid};
+        update room set arrival_expected=#{arrival_expected} where id=#{rid};
+        update room set bookphonenum=#{bookphonenum} where id=#{rid};
+    </update>
+    <update id="reset_arrival_expected">
+        update room set arrival_expected=null where id=#{rid};
+    </update>
+    <update id="inti">
+        update room set status='空' where id=#{rid};
+        update room set arrival_expected=null where id=#{rid};
+        update room set bookphonenum=null where id=#{rid};
+    </update>
+
+<!--    *参数占位符：
+        1.#{}:会将其替换为 ？，为了防止SQL注入
+        2.${}:拼sql，会存在SQL注入问题
+        3.使用时机：
+            *参数传递的时候：#{}
+            *表名或者列名不固定的情况下：${} 会存在SQL注入问题
+
+          *参数类型：parameterType：可以省略
+          *特殊字符处理：
+            1.转义字符：<就是&lt;
+            2.CDATA区:CD提示
+            -->
+
+    <select id="selectSingleRoom" resultType="pojo.room">
+        select *from room where status='空' and type like '%单人间';
+    </select>
+    <select id="selectDoubleRoom" resultType="pojo.room">
+        select *from room where status='空' and type like '%双人间';
+    </select>
+    <select id="selectAllRoom" resultType="pojo.room">
+        select *from room where status='空';
+    </select>
+    <select id="get_be_booked" resultType="pojo.room">
+        select *from room where status='预定中';
+    </select>
+    <select id="selectById" resultType="pojo.room">
+        select *from room where id=#{id};
+    </select>
+
+
+</mapper>

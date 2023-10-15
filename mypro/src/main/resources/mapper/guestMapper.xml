@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+    namespace:名称空间
+    入门链接cv过来
+-->
+<mapper namespace="mapper.guestMapper">
+
+<!--    添加客人信息，guest，living，room的信息都更新，避免出错-->
+    <insert id="add_guest" useGeneratedKeys="true" keyProperty="id">
+<!--        useGeneratedKeys="true" keyProperty="id" 返回添加数据的主键-->
+<!--        这里的reg做了修改，不再添加reg的内容，即我们不区分单人还是团体，因为没有意义-->
+        <!--        如果后期删除了reg这个属性，这里应该还要修改，因为是整体插值-->
+        insert into guest values(Null,#{name},#{gender},#{id},#{status},#{contact});
+        insert into living() values(Null,#{rid},#{arrival},#{leave_expected},Null,#{pay},#{bookphonenum});
+        UPDATE room SET `status`='住宿中' WHERE id=#{rid};
+    </insert>
+    <insert id="user_register">
+        insert into user() values(#{username},#{password},#{phonenum});
+    </insert>
+    <update id="check_out">
+        update living set leave_true=#{leave_true} where gno=#{no};
+        update guest set status='已离开' where no=#{no};
+        update room set bookphonenum=null where id=#{rid};
+        update room set status='空' where id=#{rid};
+        update living set pay=#{pay} where gno=#{no};
+    </update>
+
+
+
+
+
+<!--        <select id="selectByCondition" resultType="pojo.guest">-->
+<!--        select *from guest where status=#{status} and gender=#{gender};-->
+<!--    </select>-->
+<!--    动态条件查询-->
+<!--    <select id="selectByCondition" resultType="pojo.guest">-->
+<!--        select *from guest-->
+<!--        <where>-->
+<!--            <if test="no!=0">-->
+<!--                and gender=#{no}-->
+<!--            </if>-->
+<!--            <if test="name!=null and name!=''">-->
+<!--                and-->
+<!--                name=#{name}-->
+<!--            </if>-->
+<!--            <if test="id!=null and id!=''">-->
+<!--                and-->
+<!--                id=#{id}-->
+<!--            </if>-->
+<!--            <if test="status!=null and status!=''">-->
+<!--                and-->
+<!--                status=#{status}-->
+<!--            </if>-->
+<!--        </where>-->
+
+<!--    </select>-->
+    <select id="selectByConditionSingle" resultType="pojo.guest">
+        select * from guest where
+        <choose>        <!--相当于switch-->
+            <when test="no!=null">  <!--相当于case-->
+                no=#{no}
+            </when>
+            <when test="name!=null and name!=''">  <!--相当于case-->
+                name like #{name}
+            </when>
+            <when test="id!=null and id!=''">  <!--相当于case-->
+                id like #{id}
+            </when>
+            <otherwise>
+                1=0          <!--用otherwise给一个保底的选择-->
+            </otherwise>    <!--因为我们是返回一个guest对象，所以不要用1=1，这会查询所有，返回guest对象集合-->
+        </choose>
+    </select>
+
+<!--    <select id="search_room" resultType="java.lang.String">-->
+<!--        select rid from living where gno=#{gno};-->
+<!--    </select>-->
+    <select id="get_password" resultType="java.lang.String">
+        select password from user where username=#{username};
+    </select>
+    <select id="get_bookphonenum" resultType="java.lang.String">
+        select phonenum from user where username=#{username};
+    </select>
+    <select id="view_my_living" resultType="pojo.guest">
+        select distinct no,rid,arrival,leave_expected,pay,status from guest,living where guest.no=living.gno and bookphonenum=#{bookphonenum};
+    </select>
+    <select id="view_my_booked_room" resultType="pojo.room">
+        select id,type,arrival_expected,status from room where status='预定中' and bookphonenum=#{bookphonenum};
+    </select>
+    <select id="view_my_check_out" resultType="pojo.guest">
+        select no,rid,arrival,leave_expected,pay,status from guest,living where guest.no=living.gno and bookphonenum=#{bookphonenum} and leave_true is null;
+
+    </select>
+
+</mapper>
